@@ -36,9 +36,9 @@ function $View(   $rootScope,   $templateFactory,   $q,   $rootScope,   $injecto
     }
   }
 
-  function resolveController(options, locals) {
+  function resolveController(options) {
     if (isFunction(options.controllerProvider) || isArray(options.controllerProvider)) {
-      return $injector.invoke(view.controllerProvider, null, locals);
+      return $injector.invoke(options.controllerProvider, null, options.locals);
     }
     return options.controller;
   }
@@ -97,7 +97,7 @@ function $View(   $rootScope,   $templateFactory,   $q,   $rootScope,   $injecto
       tick(fqn, options.context);
       return push(fqn, options.async, {
         $template:   results[0],
-        $controller: resolveController(options, locals),
+        $controller: resolveController(options),
         $locals:     options.locals,
         $context:    options.context
       });
