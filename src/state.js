@@ -322,7 +322,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // Starting from the root of the path, keep all levels that haven't changed
       var keep, state, locals = root.locals, toLocals = [], keptViews = [];
       for (keep = 0, state = toPath[keep];
-           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams) && !options.reload;
+           state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams) && !opts.reload;
            keep++, state = toPath[keep]) {
         locals = toLocals[keep] = state.locals;
 
@@ -338,7 +338,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory,           $
       // TODO: We may not want to bump 'transition' if we're called from a location change
       // that we've initiated ourselves, because we might accidentally abort a legitimate
       // transition initiated from code?
-      if (to === from && locals === from.locals && !options.reload) {
+      if (to === from && locals === from.locals && !opts.reload) {
         if (to.self.reloadOnSearch !== false) syncUrl();
         $state.transition = null;
         return $q.when($state.current);
