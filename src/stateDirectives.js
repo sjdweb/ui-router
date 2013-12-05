@@ -7,8 +7,8 @@ function parseStateRef(ref) {
 function stateContext(el) {
   var stateData = el.parent().inheritedData('$uiView');
 
-  if (stateData && stateData.state && stateData.state.name) {
-    return stateData.state;
+  if (stateData && stateData.context && stateData.context.name) {
+    return stateData.context;
   }
 }
 
@@ -19,20 +19,25 @@ function $StateRefDirective($state, $timeout) {
     require: '?^uiSrefActive',
     link: function(scope, element, attrs, uiSrefActive) {
       var ref = parseStateRef(attrs.uiSref);
-      var params = null, url = null, base = stateContext(element) || $state.$current;
+      var params = null, url = null;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
+
+      var base = function() {
+        return stateContext(element) || $state.$current;
+      };
 
       var update = function(newVal) {
         if (newVal) params = newVal;
         if (!nav) return;
 
-        var newHref = $state.href(ref.state, params, { relative: base });
+        var newHref = $state.href(ref.state, params, { relative: base() });
 
         if (!newHref) {
           nav = false;
           return false;
         }
+
         element[0][attr] = newHref;
         if (uiSrefActive) {
           uiSrefActive.$$setStateInfo(ref.state, params);
@@ -45,6 +50,7 @@ function $StateRefDirective($state, $timeout) {
         }, true);
         params = scope.$eval(ref.paramExpr);
       }
+
       update();
 
       if (isForm) return;
@@ -56,7 +62,7 @@ function $StateRefDirective($state, $timeout) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
           $timeout(function() {
             scope.$apply(function() {
-              $state.go(ref.state, params, { relative: base });
+              $state.go(ref.state, params, { relative: base() });
             });
           });
           e.preventDefault();
