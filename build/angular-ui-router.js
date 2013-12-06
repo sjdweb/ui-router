@@ -1,6 +1,6 @@
 /**
  * State-based routing for AngularJS
- * @version v0.2.5-dev-2013-12-05
+ * @version v0.2.6-dev-2013-12-06
  * @link http://angular-ui.github.com/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1473,7 +1473,7 @@ function $ViewDirective(   $state,   $compile,   $controller,   $injector,   $an
         var viewScope, viewLocals,
             name = attr[directive.name] || attr.name || '',
             onloadExp = attr.onload || '',
-            animate = isDefined($animator) && $animator(scope, attr),
+            animate = $animator && $animator(scope, attr),
             initialView = transclude(scope);
 
         // Returns a set of DOM manipulation functions based on whether animation
@@ -1589,8 +1589,8 @@ function stateContext(el) {
   }
 }
 
-$StateRefDirective.$inject = ['$state'];
-function $StateRefDirective($state) {
+$StateRefDirective.$inject = ['$state', '$timeout'];
+function $StateRefDirective($state, $timeout) {
   return {
     restrict: 'A',
     require: '?^uiSrefActive',
@@ -1630,8 +1630,11 @@ function $StateRefDirective($state) {
         var button = e.which || e.button;
 
         if ((button === 0 || button == 1) && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          scope.$evalAsync(function() {
-            $state.go(ref.state, params, { relative: base });
+          // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
+          $timeout(function() {
+            scope.$apply(function() {
+              $state.go(ref.state, params, { relative: base });
+            });
           });
           e.preventDefault();
         }
