@@ -95,7 +95,6 @@ function $View(   $rootScope,   $templateFactory,   $q,   $injector) {
     }
 
     return $q.all(promises).then(function(results) {
-      tick(fqn, options.context);
       return push(fqn, options.async, {
         $template:   results[0],
         $controller: resolveController(options),
