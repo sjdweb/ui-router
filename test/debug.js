@@ -23,6 +23,7 @@ module.exports = function(config) {
       '../src/state.js',
       '../src/viewDirective.js',
       '../src/stateDirectives.js',
+      '../src/stateFilters.js',
       '../src/compat.js',
 
       '../test/*Spec.js',
