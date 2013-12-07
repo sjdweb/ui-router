@@ -17,7 +17,6 @@ angular.module('ngMock')
 
       $delegate.flush = function() {
         $rootScope.$digest();
-        $delegate.dump();
       };
 
       // Add callbacks to the promise that expose the resolved value/error
