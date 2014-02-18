@@ -107,6 +107,20 @@ describe('uiStateRef', function() {
       expect(el.attr('href')).toBe('#/contacts/3');
     }));
 
+    it('should not allow click when marked disabled', inject(function($compile, $rootScope, $state, $timeout, $q) {
+      el = angular.element("<a ui-sref=\"contacts.item.detail({\n\tid: $index\n})\" ui-sref-disabled=\"{{ true }}\" disabled-class=\"disabled\">Details</a>");
+
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      triggerClick(el);
+      $timeout.flush();
+      $q.flush();
+
+      expect($state.current.name).toEqual('');
+      expect(el.attr('class')).toContain('disabled');
+    }));
+
     it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {
       expect($state.$current.name).toEqual('');
 

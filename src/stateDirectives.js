@@ -80,12 +80,15 @@ function $StateRefDirective($state, $timeout) {
 
   return {
     restrict: 'A',
-    require: '?^uiSrefActive',
-    link: function(scope, element, attrs, uiSrefActive) {
+    require: ['?^uiSrefActive', '?^uiSrefDisabled'],
+    link: function(scope, element, attrs, controllers) {
+      var uiSrefActive = controllers[0];
+      var uiSrefDisabled = controllers[1];
       var ref = parseStateRef(attrs.uiSref);
       var params = null, url = null, base = stateContext(element) || $state.$current;
       var isForm = element[0].nodeName === "FORM";
       var attr = isForm ? "action" : "href", nav = true;
+      var disabled = false;
 
       var options = {
         relative: base
@@ -106,10 +109,16 @@ function $StateRefDirective($state, $timeout) {
         if (uiSrefActive) {
           uiSrefActive.$$setStateInfo(ref.state, params);
         }
+
+        if(uiSrefDisabled) {
+          disabled = uiSrefDisabled.$$update(disabled);
+        }
+
         if (!newHref) {
           nav = false;
           return false;
         }
+
         element[0][attr] = newHref;
       };
 
@@ -124,6 +133,11 @@ function $StateRefDirective($state, $timeout) {
       if (isForm) return;
 
       element.bind("click", function(e) {
+        if (disabled) {
+          e.preventDefault();
+          return;
+        }
+
         var button = e.which || e.button;
         if ( !(button > 1 || e.ctrlKey || e.metaKey || e.shiftKey || element.attr('target')) ) {
           // HACK: This is to allow ng-clicks to be processed before the transition is initiated:
@@ -221,6 +235,36 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
   };
 }
 
+$StateDisabledDirective.$inject = ['$state', '$stateParams', '$interpolate'];
+function $StateDisabledDirective($state, $stateParams, $interpolate) {
+  return {
+    restrict: "A",
+    controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+      var disabledClass;
+
+      // There probably isn't much point in $observing this
+      disabledClass = $interpolate($attrs.disabledClass || '', false)($scope);
+
+      // Allow uiSref to communicate with uiSrefDisabled
+      this.$$update = function() {
+        return update();
+      };
+
+      // Update route disabled state
+      function update() {
+        if ($attrs.uiSrefDisabled) {
+          $element.addClass(disabledClass);
+          return true;
+        } else {
+          $element.removeClass(disabledClass);
+          return false;
+        }
+      }
+    }]
+  };
+}
+
 angular.module('ui.router.state')
   .directive('uiSref', $StateRefDirective)
-  .directive('uiSrefActive', $StateActiveDirective);
+  .directive('uiSrefActive', $StateActiveDirective)
+  .directive('uiSrefDisabled', $StateDisabledDirective);
