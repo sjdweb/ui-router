@@ -74,7 +74,7 @@ module.exports = function (grunt) {
         exclude: [],
         frameworks: ['jasmine'],
         reporters: 'dots', // 'dots' || 'progress'
-        port: 8080,
+        port: 8087,
         colors: true,
         autoWatch: false,
         autoWatchInterval: 0,

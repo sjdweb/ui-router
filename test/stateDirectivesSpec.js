@@ -108,9 +108,13 @@ describe('uiStateRef', function() {
     }));
 
     it('should not allow click when marked disabled', inject(function($compile, $rootScope, $state, $timeout, $q) {
-      el = angular.element("<a ui-sref=\"contacts.item.detail({\n\tid: $index\n})\" ui-sref-disabled=\"{{ true }}\" disabled-class=\"disabled\">Details</a>");
+      el = angular.element("<a ui-sref=\"contacts.item.detail({\n\tid: $index\n})\" ui-sref-disabled=\"{{ isDisabled }}\" disabled-class=\"disabled\">Details</a>");
 
-      $compile(el)($rootScope);
+      scope = $rootScope;
+      scope.isDisabled = true;
+      scope.$apply();
+
+      $compile(el)(scope);
       $rootScope.$digest();
 
       triggerClick(el);
@@ -119,6 +123,12 @@ describe('uiStateRef', function() {
 
       expect($state.current.name).toEqual('');
       expect(el.attr('class')).toContain('disabled');
+
+      scope.isDisabled = true;
+      scope.$apply();
+      scope.$digest();
+
+      expect(el.attr('class')).toNotContain('disabled');
     }));
 
     it('should transition states when left-clicked', inject(function($state, $stateParams, $document, $q, $timeout) {

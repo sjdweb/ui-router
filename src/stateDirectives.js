@@ -235,12 +235,17 @@ function $StateActiveDirective($state, $stateParams, $interpolate) {
   };
 }
 
-$StateDisabledDirective.$inject = ['$state', '$stateParams', '$interpolate'];
-function $StateDisabledDirective($state, $stateParams, $interpolate) {
+$StateDisabledDirective.$inject = ['$interpolate'];
+function $StateDisabledDirective($interpolate) {
   return {
     restrict: "A",
     controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
-      var disabledClass;
+      var isDisabled, disabledClass;
+
+      $attrs.$observe('uiSrefDisabled', function(val) {
+        isDisabled = val;
+        update();
+      });
 
       // There probably isn't much point in $observing this
       disabledClass = $interpolate($attrs.disabledClass || '', false)($scope);
@@ -252,7 +257,8 @@ function $StateDisabledDirective($state, $stateParams, $interpolate) {
 
       // Update route disabled state
       function update() {
-        if ($attrs.uiSrefDisabled) {
+//        console.log(isDisabled);
+        if ((isDisabled === 'true')) {
           $element.addClass(disabledClass);
           return true;
         } else {
